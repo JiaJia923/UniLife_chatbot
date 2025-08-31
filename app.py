@@ -9,7 +9,7 @@ import time
 # Initialize the client
 try:
     # Try to get the token from environment variable
-    HF_TOKEN = os.environ.get("HF_TOKEN", "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")
+    HF_TOKEN = os.environ.get("HF_TOKEN", "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")
     
     client = InferenceClient(
         provider="hf-inference",
@@ -313,3 +313,4 @@ with st.expander("About This AI Assistant"):
     
     The AI extracts answers from the provided context about University life.
     """)
+
