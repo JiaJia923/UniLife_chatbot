@@ -1,31 +1,28 @@
-import streamlit as st
 import os
-from huggingface_hub import InferenceClient
+import streamlit as st
+from dotenv import load_dotenv
 import time
 
-# =============================
-# Hugging Face Setup
-# =============================
-# Initialize the client
-try:
-    # Try to get the token from environment variable
-    HF_TOKEN = os.environ.get("HF_TOKEN", "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")
-    
-    client = InferenceClient(
-        provider="hf-inference",
-        api_key=HF_TOKEN,
+# Try to get the token from Streamlit Secrets (works in deployed app)
+if 'HUGGINGFACEHUB_API_TOKEN' in st.secrets:
+    hf_token = st.secrets['HUGGINGFACEHUB_API_TOKEN']
+# If not found, try to load from .env file (works locally)
+else:
+    load_dotenv()
+    hf_token = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+
+# Check if the token was found anywhere
+if hf_token is None:
+    st.error("Hugging Face API token not found! Please check your secrets management.")
+else:
+    # Your code to use the token goes here.
+    # For example:
+    from langchain.llms import HuggingFaceHub
+    llm = HuggingFaceHub(
+        repo_id="deepset/roberta-base-squad2",
+        huggingfacehub_api_token=hf_token  # Use the token we just loaded
     )
-    
-    # Test the connection with a simple request
-    test_response = client.question_answering(
-        question="What is the purpose?",
-        context="This is a test of the API connection.",
-        model="deepset/roberta-base-squad2",
-    )
-    API_CONNECTED = True
-except Exception as e:
-    API_CONNECTED = False
-    st.error(f"API Connection Failed: {str(e)}")
+    st.success("API Token loaded successfully!")
 
 # Context about UTAR for the API
 utar_context = """
@@ -313,5 +310,3 @@ with st.expander("About This AI Assistant"):
     
     The AI extracts answers from the provided context about University life.
     """)
-
-
