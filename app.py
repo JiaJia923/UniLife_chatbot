@@ -2,27 +2,44 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 import time
+from huggingface_hub import InferenceClient
 
-# Try to get the token from Streamlit Secrets (works in deployed app)
-if 'HUGGINGFACEHUB_API_TOKEN' in st.secrets:
-    hf_token = st.secrets['HUGGINGFACEHUB_API_TOKEN']
-# If not found, try to load from .env file (works locally)
+if 'HF_TOKEN' in st.secrets:
+    HF_TOKEN = st.secrets['HF_TOKEN']
+    st.sidebar.success("API Key loaded from Streamlit Secrets.")
+
+# Method 2: If not found, try to load from .env file (for LOCAL DEVELOPMENT)
 else:
     load_dotenv()
-    hf_token = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+    HF_TOKEN = os.environ.get("HF_TOKEN")
+    if HF_TOKEN:
+        st.sidebar.info("API Key loaded from local environment.")
+    else:
+        st.sidebar.warning("API Key not found. Please set it in the sidebar.")
+        HF_TOKEN = None
 
-# Check if the token was found anywhere
-if hf_token is None:
-    st.error("Hugging Face API token not found! Please check your secrets management.")
+# Initialize the client only if we have a token
+if HF_TOKEN:
+    try:
+        client = InferenceClient(
+            provider="hf-inference",
+            api_key=HF_TOKEN,
+        )
+        
+        # Test the connection
+        test_response = client.question_answering(
+            question="What is the purpose?",
+            context="This is a test of the API connection.",
+            model="deepset/roberta-base-squad2",
+        )
+        API_CONNECTED = True
+        st.sidebar.success("✅ API Connected Successfully!")
+    except Exception as e:
+        API_CONNECTED = False
+        st.sidebar.error(f"❌ API Connection Failed: {str(e)}")
 else:
-    # Your code to use the token goes here.
-    # For example:
-    from langchain.llms import HuggingFaceHub
-    llm = HuggingFaceHub(
-        repo_id="deepset/roberta-base-squad2",
-        huggingfacehub_api_token=hf_token  # Use the token we just loaded
-    )
-    st.success("API Token loaded successfully!")
+    API_CONNECTED = False
+    client = None
 
 # Context about UTAR for the API
 utar_context = """
@@ -310,3 +327,4 @@ with st.expander("About This AI Assistant"):
     
     The AI extracts answers from the provided context about University life.
     """)
+
