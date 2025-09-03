@@ -8,7 +8,7 @@ if 'HF_TOKEN' in st.secrets:
     HF_TOKEN = st.secrets['HF_TOKEN']
     st.sidebar.success("API Key loaded from Streamlit Secrets.")
 
-# Method 2: If not found, try to load from .env file (for LOCAL DEVELOPMENT)
+
 else:
     load_dotenv()
     HF_TOKEN = os.environ.get("HF_TOKEN")
@@ -18,7 +18,7 @@ else:
         st.sidebar.warning("API Key not found. Please set it in the sidebar.")
         HF_TOKEN = None
 
-# Initialize the client only if we have a token
+
 if HF_TOKEN:
     try:
         client = InferenceClient(
@@ -26,7 +26,7 @@ if HF_TOKEN:
             api_key=HF_TOKEN,
         )
         
-        # Test the connection
+        
         test_response = client.question_answering(
             question="What is the purpose?",
             context="This is a test of the API connection.",
@@ -41,7 +41,7 @@ else:
     API_CONNECTED = False
     client = None
 
-# Context about UTAR for the API
+
 utar_context = """
 Universiti Tunku Abdul Rahman (UTAR) is a private university in Malaysia with campuses in Kampar and Sungai Long. 
 Established in 2002, UTAR has grown to become one of Malaysia's premier private universities.
@@ -107,16 +107,16 @@ Counseling Services:
 - Staff counseling available through HR referral
 """
 
-# =============================
+
 # Streamlit UI
-# =============================
+
 st.set_page_config(
     page_title="University Life Chatbot",
     layout="centered",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for styling
+# CSS
 st.markdown("""
     <style>
     .main-header {
@@ -188,7 +188,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
     # Add welcome message
@@ -200,10 +200,10 @@ if "messages" not in st.session_state:
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
-# Header
+
 st.markdown('<h1 class="main-header">UniLife AI Assistant</h1>', unsafe_allow_html=True)
 
-# API status indicator
+
 if API_CONNECTED:
     st.markdown('<div class="api-status api-connected">✅ Connected to Hugging Face QA API</div>', unsafe_allow_html=True)
 else:
@@ -212,7 +212,7 @@ else:
 
 st.markdown('<p class="utar-blue">Ask me anything about University Life - I can answer questions about facilities, services, and campus life!</p>', unsafe_allow_html=True)
 
-# Suggested questions
+
 st.subheader("Try These Questions")
 suggested_questions = [
     "What are the library opening hours?",
@@ -230,7 +230,7 @@ for i, question in enumerate(suggested_questions):
             st.session_state.user_input = question
             st.rerun()
 
-# Display chat messages
+
 st.markdown("### Conversation")
 chat_container = st.container()
 
@@ -241,7 +241,7 @@ with chat_container:
         else:
             st.markdown(f'<div class="bot-message">{msg["content"]}</div>', unsafe_allow_html=True)
 
-# User input with clear after submission
+
 user_input = st.text_input("Type your question here...", value=st.session_state.user_input, key="user_input_widget", label_visibility="collapsed")
 
 col1, col2 = st.columns([5, 1])
@@ -263,11 +263,11 @@ if ask_button and user_input:
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": user_input})
     
-    # Generate response
+    
     with st.spinner("Thinking..."):
         if API_CONNECTED:
             try:
-                # Use Hugging Face API for all questions
+                
                 answer = client.question_answering(
                     question=user_input,
                     context=utar_context,
@@ -279,7 +279,7 @@ if ask_button and user_input:
         else:
             response = "API connection is not available. Please check your Hugging Face token and internet connection."
         
-        # Simulate typing effect
+        
         message_placeholder = st.empty()
         full_response = ""
         for chunk in response.split():
@@ -289,14 +289,14 @@ if ask_button and user_input:
         
         message_placeholder.markdown(f'<div class="bot-message">{response}</div>', unsafe_allow_html=True)
         
-        # Add assistant response to chat history
+      
         st.session_state.messages.append({"role": "assistant", "content": response})
         
-    # Clear the input field by updating the session state and rerunning
+    
     st.session_state.user_input = ""
     st.rerun()
 
-# Footer
+
 st.markdown("---")
 if API_CONNECTED:
     st.markdown(
@@ -310,7 +310,7 @@ else:
     )
 
 
-# UTAR information
+
 with st.expander("About This AI Assistant"):
     st.markdown("""
     *UniLife AI Assistant**
@@ -327,4 +327,5 @@ with st.expander("About This AI Assistant"):
     
     The AI extracts answers from the provided context about University life.
     """)
+
 
