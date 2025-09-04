@@ -271,7 +271,7 @@ if ask_button and user_input:
                 answer = client.question_answering(
                     question=user_input,
                     context=utar_context,
-                    model="deepset/roberta-base-squad2",
+                    model="distilbert/distilbert-base-cased-distilled-squad",
                 )
                 response = answer.answer if answer.answer else "I couldn't find specific information about that in my knowledge base. Could you try asking about university facilities, services, or campus life?"
             except Exception as e:
@@ -327,4 +327,5 @@ with st.expander("About This AI Assistant"):
     
     The AI extracts answers from the provided context about University life.
     """)
+
 
