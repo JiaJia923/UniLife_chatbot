@@ -30,7 +30,7 @@ if HF_TOKEN:
         test_response = client.question_answering(
             question="What is the purpose?",
             context="This is a test of the API connection.",
-            model="deepset/roberta-base-squad2",
+            model="distilbert/distilbert-base-cased-distilled-squad",
         )
         API_CONNECTED = True
         st.sidebar.success("✅ API Connected Successfully!")
@@ -327,3 +327,4 @@ with st.expander("About This AI Assistant"):
     
     The AI extracts answers from the provided context about University life.
     """)
+
